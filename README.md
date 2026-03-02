@@ -7,9 +7,10 @@ A simple Python project that fetches stock data using yfinance and shows basic s
 - Average closing price
 
 ## Technologies
-Python
-yfinance
-pandas
+- Python
+- Flask
+- yfinance
+- pandas
 
 ## Run
 
