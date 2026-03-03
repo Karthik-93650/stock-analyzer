@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<head>
+    <title>Stock Analyzer Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+    <div class="container">
+        <h1>📊 Stock Analyzer Dashboard</h1>
+
+        <form method="POST" class="form-box">
+            <input type="text" name="symbol" placeholder="Enter Stock Symbol (e.g. AAPL)" required>
+            <button type="submit">Analyze</button>
+        </form>
+        {% if error %}
+        <div class="error-box">
+            {{ error }}
+        </div>
+        {% endif %}
+        {% if data %}
+        <div class="results">
+            <h2>📈 {{ symbol }} Stock Analysis</h2>
+            <div class="stats">
+                <div class="card">
+                    <h3>Highest</h3>
+                    <p>${{ stats.highest }}</p>
+                </div>
+
+                <div class="card">
+                    <h3>Lowest</h3>
+                    <p>${{ stats.lowest }}</p>
+                </div>
+
+                <div class="card">
+                    <h3>Average</h3>
+                    <p>${{ stats.average }}</p>
+                </div>
+            </div>
+
+            <div class="chart-box">
+                <img src="{{ url_for('static', filename='chart.png') }}">
+            </div>
+
+            <a href="/download" class="download-btn">Download CSV</a>
+        </div>
+        {% endif %}
+    </div>
+
+</body>
+
+</html>

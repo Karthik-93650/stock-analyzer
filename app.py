@@ -1,30 +1,62 @@
+from flask import Flask, render_template, request, send_file
 import yfinance as yf
+import pandas as pd
+import matplotlib.pyplot as plt
+import os
+
+plt.style.use("ggplot")
+
+app = Flask(__name__)
 
 
-def get_stock_data(symbol):
-    stock = yf.Ticker(symbol)
-    data = stock.history(period="1y")
-    return data
+@app.route("/", methods=["GET", "POST"])
+def index():
+    data = None
+    stats = {}
+    error = None
 
-def show_summary(data):
-    highest = data["High"].max()
-    lowest = data["Low"].min()
-    average = data["Close"].mean()
-    print("\nStock Summary")
-    print("-------------------")
-    print("Highest Price :", round(highest, 2))
-    print("Lowest Price  :", round(lowest, 2))
-    print("Average Close :", round(average, 2))
+    if request.method == "POST":
+        symbol = request.form["symbol"].upper().strip()
 
-def main():
-    print("📊 Simple Stock Analyzer")
-    symbol = input("Enter stock symbol (example: AAPL): ").upper()
-    data = get_stock_data(symbol)
-    if data.empty:
-        print("No data found. Try another symbol.")
-        return
-    show_summary(data)
+        try:
+            stock = yf.Ticker(symbol)
+            df = stock.history(period="6mo")
+
+            if df.empty:
+                error = "Invalid stock symbol or no data found."
+            else:
+                df["MA20"] = df["Close"].rolling(window=20).mean()
+
+                stats = {
+                    "highest": round(df["High"].max(), 2),
+                    "lowest": round(df["Low"].min(), 2),
+                    "average": round(df["Close"].mean(), 2)
+                }
+
+                df.to_csv("stock_data.csv")
+
+                plt.figure(figsize=(8, 4))
+                plt.plot(df["Close"], label="Close Price")
+                plt.plot(df["MA20"], label="20 Day MA")
+                plt.legend()
+                plt.title(f"{symbol} Stock Price")
+                plt.tight_layout()
+                plt.savefig("static/chart.png")
+                plt.close()
+
+                data = True
+
+        except Exception:
+            error = "Something went wrong. Please try again."
+
+    return render_template("index.html", stats=stats, data=data, error=error, symbol=symbol if request.method=="POST" else "")
+
+@app.route("/download")
+def download():
+    if os.path.exists("stock_data.csv"):
+        return send_file("stock_data.csv", as_attachment=True)
+    return "No file available to download."
 
 
 if __name__ == "__main__":
-    main()
+    app.run(debug=True)
