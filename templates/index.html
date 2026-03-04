@@ -2,6 +2,7 @@
 <html>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <head>
     <title>Stock Analyzer Dashboard</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
@@ -13,7 +14,15 @@
         <h1>📊 Stock Analyzer Dashboard</h1>
 
         <form method="POST" class="form-box">
-            <input type="text" name="symbol" placeholder="Enter Stock Symbol (e.g. AAPL)" required>
+            <input type="text" name="symbol" value="{{ symbol }}" placeholder="Enter Stock Symbol (e.g. AAPL)" required>
+
+            <select name="period">
+                <option value="1mo">1 Month</option>
+                <option value="3mo">3 Months</option>
+                <option value="6mo">6 Months</option>
+                <option value="1y">1 Year</option>
+            </select>
+
             <button type="submit">Analyze</button>
         </form>
         {% if error %}

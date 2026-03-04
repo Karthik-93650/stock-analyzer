@@ -1,6 +1,9 @@
 from flask import Flask, render_template, request, send_file
 import yfinance as yf
 import pandas as pd
+import matplotlib
+
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import os
 
@@ -14,13 +17,16 @@ def index():
     data = None
     stats = {}
     error = None
+    symbol = ""
+    period = "6mo"
 
     if request.method == "POST":
         symbol = request.form["symbol"].upper().strip()
+        period = request.form.get("period", "6mo")
 
         try:
             stock = yf.Ticker(symbol)
-            df = stock.history(period="6mo")
+            df = stock.history(period=period)
 
             if df.empty:
                 error = "Invalid stock symbol or no data found."
@@ -35,21 +41,23 @@ def index():
 
                 df.to_csv("stock_data.csv")
 
-                plt.figure(figsize=(8, 4))
+                plt.figure(figsize=(8,4))
                 plt.plot(df["Close"], label="Close Price")
                 plt.plot(df["MA20"], label="20 Day MA")
                 plt.legend()
-                plt.title(f"{symbol} Stock Price")
+                plt.title(f"{symbol} Stock Price ({period})")
                 plt.tight_layout()
                 plt.savefig("static/chart.png")
                 plt.close()
 
                 data = True
 
-        except Exception:
+        except Exception as e:
+            print(e)
             error = "Something went wrong. Please try again."
 
-    return render_template("index.html", stats=stats, data=data, error=error, symbol=symbol if request.method=="POST" else "")
+    return render_template("index.html",stats=stats,data=data,error=error,symbol=symbol,period=period)
+
 
 @app.route("/download")
 def download():
