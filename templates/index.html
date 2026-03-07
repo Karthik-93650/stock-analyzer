@@ -1,39 +1,65 @@
 <!DOCTYPE html>
-<html>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<html lang="en">
 
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Stock Analyzer Dashboard</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 
 <body>
 
-    <div class="container">
-        <h1>📊 Stock Analyzer Dashboard</h1>
+<div class="container">
 
-        <form method="POST" class="form-box">
-            <input type="text" name="symbol" value="{{ symbol }}" placeholder="Enter Stock Symbol (e.g. AAPL)" required>
+    <h1>📊 Stock Analyzer Dashboard</h1>
 
-            <select name="period">
-                <option value="1mo">1 Month</option>
-                <option value="3mo">3 Months</option>
-                <option value="6mo">6 Months</option>
-                <option value="1y">1 Year</option>
-            </select>
+    <form method="POST" class="form-box">
 
-            <button type="submit">Analyze</button>
-        </form>
-        {% if error %}
-        <div class="error-box">
-            {{ error }}
+        <input
+            type="text"
+            name="symbol"
+            value="{{ symbol }}"
+            placeholder="Enter symbols (example: AAPL,TSLA,MSFT)"
+            required
+        >
+
+        <select name="period">
+            <option value="1mo" {% if period == "1mo" %}selected{% endif %}>1 Month</option>
+            <option value="3mo" {% if period == "3mo" %}selected{% endif %}>3 Months</option>
+            <option value="6mo" {% if period == "6mo" %}selected{% endif %}>6 Months</option>
+            <option value="1y" {% if period == "1y" %}selected{% endif %}>1 Year</option>
+        </select>
+
+        <button type="submit">Analyze</button>
+
+    </form>
+
+
+    {% if error %}
+    <div class="error-box">
+        {{ error }}
+    </div>
+    {% endif %}
+
+
+    {% if data %}
+
+        {% if company %}
+        <div class="company-info">
+            <h2>{{ company }}</h2>
+            <p><strong>Sector:</strong> {{ sector }}</p>
+            <p><strong>Market Cap:</strong> {{ marketcap }}</p>
         </div>
         {% endif %}
-        {% if data %}
+
+
         <div class="results">
+
             <h2>📈 {{ symbol }} Stock Analysis</h2>
+
             <div class="stats">
+
                 <div class="card">
                     <h3>Highest</h3>
                     <p>${{ stats.highest }}</p>
@@ -48,17 +74,20 @@
                     <h3>Average</h3>
                     <p>${{ stats.average }}</p>
                 </div>
+
             </div>
 
             <div class="chart-box">
-                <img src="{{ url_for('static', filename='chart.png') }}">
+                <img src="{{ url_for('static', filename='chart.png') }}" alt="Stock chart">
             </div>
 
             <a href="/download" class="download-btn">Download CSV</a>
+
         </div>
-        {% endif %}
-    </div>
+
+    {% endif %}
+
+</div>
 
 </body>
-
 </html>

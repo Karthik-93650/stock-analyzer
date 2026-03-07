@@ -20,43 +20,80 @@ def index():
     symbol = ""
     period = "6mo"
 
+    company = None
+    sector = None
+    marketcap = None
+
     if request.method == "POST":
         symbol = request.form["symbol"].upper().strip()
         period = request.form.get("period", "6mo")
 
-        try:
-            stock = yf.Ticker(symbol)
-            df = stock.history(period=period)
+        symbols = symbol.split(",")
 
-            if df.empty:
-                error = "Invalid stock symbol or no data found."
-            else:
+        try:
+            plt.figure(figsize=(10,5))
+
+            for s in symbols:
+                s = s.strip()
+
+                stock = yf.Ticker(s)
+                df = stock.history(period=period)
+
+                if df.empty:
+                    continue
+
+                # moving average
                 df["MA20"] = df["Close"].rolling(window=20).mean()
 
-                stats = {
-                    "highest": round(df["High"].max(), 2),
-                    "lowest": round(df["Low"].min(), 2),
-                    "average": round(df["Close"].mean(), 2)
-                }
+                # plot price
+                plt.plot(df["Close"], label=f"{s} Close")
 
+                # plot volume
+                plt.bar(df.index, df["Volume"], alpha=0.15)
+
+                # calculate stats for first stock
+                if not stats:
+                    stats = {
+                        "highest": round(df["High"].max(), 2),
+                        "lowest": round(df["Low"].min(), 2),
+                        "average": round(df["Close"].mean(), 2)
+                    }
+
+                    # company information
+                    info = stock.info
+                    company = info.get("longName", s)
+                    sector = info.get("sector", "N/A")
+                    marketcap = info.get("marketCap", "N/A")
+
+                # save csv
                 df.to_csv("stock_data.csv")
 
-                plt.figure(figsize=(8,4))
-                plt.plot(df["Close"], label="Close Price")
-                plt.plot(df["MA20"], label="20 Day MA")
+            if stats:
                 plt.legend()
-                plt.title(f"{symbol} Stock Price ({period})")
+                plt.title(f"Stock Comparison ({period})")
                 plt.tight_layout()
                 plt.savefig("static/chart.png")
                 plt.close()
 
                 data = True
+            else:
+                error = "Invalid stock symbol or no data found."
 
         except Exception as e:
             print(e)
             error = "Something went wrong. Please try again."
 
-    return render_template("index.html",stats=stats,data=data,error=error,symbol=symbol,period=period)
+    return render_template(
+        "index.html",
+        stats=stats,
+        data=data,
+        error=error,
+        symbol=symbol,
+        period=period,
+        company=company,
+        sector=sector,
+        marketcap=marketcap
+    )
 
 
 @app.route("/download")
