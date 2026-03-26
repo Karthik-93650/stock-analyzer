@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Watchlist</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<div class="container">
+    <div style="text-align: right; margin-bottom: 20px;">
+        <a href="/" style="margin-right: 15px; color: #a855f7; font-weight: bold; text-decoration: none;">Home</a>
+        <a href="/history" style="margin-right: 15px; color: #a855f7; font-weight: bold; text-decoration: none;">History</a>
+        <a href="/watchlist" style="margin-right: 15px; color: #a855f7; font-weight: bold; text-decoration: none;">Watchlist</a>
+        <a href="/available_stocks" style="margin-right: 15px; color: #a855f7; font-weight: bold; text-decoration: none;">Buy Stocks</a>
+        <a href="/portfolio" style="margin-right: 15px; color: #a855f7; font-weight: bold; text-decoration: none;">Portfolio</a>
+        <a href="/logout" class="download-btn" style="padding: 8px 15px; font-size: 14px; background: transparent; border: 1px solid #a855f7; display: inline-block;">Logout</a>
+    </div>
+
+    <h3>Welcome {{ session.name }}</h3>
+    <h1>Watchlist</h1>
+    <div class="flash-messages">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <div class="results">
+        <ul style="list-style-type: none; padding: 0;">
+            {% for row in data %}
+            <li style="padding: 15px; background: rgba(0,0,0,0.2); margin-bottom: 10px; border-radius: 5px; border-left: 4px solid #a855f7;">
+                <span style="font-size: 18px; font-weight: bold;">
+                    <a href="{{ url_for('index') }}" style="color: #fff; text-decoration: none;">{{ row[0] }}</a>
+                </span>
+                <a href="{{ url_for('remove_watchlist', symbol=row[0]) }}" style="color:red; margin-left:15px; text-decoration:none;">Remove</a>
+            </li>
+            {% else %}
+            <li style="padding: 15px; text-align: center;">Your watchlist is empty.</li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+</body>
+</html>

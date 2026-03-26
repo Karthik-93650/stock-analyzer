@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buy Stocks</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .stock-card {
+            background: rgba(0,0,0,0.2);
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #a855f7;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .stock-info h2 {
+            margin: 0;
+            color: #a855f7;
+        }
+        .stock-info p {
+            margin: 5px 0 0 0;
+            color: #cbd5e0;
+        }
+        .buy-form {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        .buy-form input {
+            width: 80px;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #4b5563;
+            background: #1f2937;
+            color: white;
+            text-align: center;
+        }
+        .buy-form button {
+            padding: 10px 20px;
+            background: #22c55e;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .buy-form button:hover {
+            background: #16a34a;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div style="text-align: right; margin-bottom: 20px;">
+        <a href="/" style="margin-right: 15px; color: #a855f7; font-weight: bold; text-decoration: none;">Home</a>
+        <a href="/history" style="margin-right: 15px; color: #a855f7; font-weight: bold; text-decoration: none;">History</a>
+        <a href="/watchlist" style="margin-right: 15px; color: #a855f7; font-weight: bold; text-decoration: none;">Watchlist</a>
+        <a href="/available_stocks" style="margin-right: 15px; color: #a855f7; font-weight: bold; text-decoration: none;">Buy Stocks</a>
+        <a href="/portfolio" style="margin-right: 15px; color: #a855f7; font-weight: bold; text-decoration: none;">Portfolio</a>
+        <a href="/logout" class="download-btn" style="padding: 8px 15px; font-size: 14px; background: transparent; border: 1px solid #a855f7; display: inline-block;">Logout</a>
+    </div>
+
+    <h3>Welcome {{ session.name }}</h3>
+    <h1>Available Live Stocks</h1>
+    
+    <div class="flash-messages">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <div class="results">
+        {% if stocks %}
+            {% for stock in stocks %}
+                <div class="stock-card">
+                    <div class="stock-info">
+                        <h2>{{ stock.symbol }}</h2>
+                        <p>{{ stock.name }}</p>
+                        <p style="font-weight: bold; color: white;">Live Price: ${{ stock.current_price }}</p>
+                    </div>
+                    <form method="POST" action="/buy/{{ stock.symbol }}" class="buy-form">
+                        <label for="qty_{{ stock.symbol }}">Qty:</label>
+                        <input type="number" id="qty_{{ stock.symbol }}" name="quantity" value="1" min="1" required>
+                        <button type="submit">Buy Now</button>
+                    </form>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p style="padding: 15px; text-align: center; color: #9ca3af;">No stocks are currently available. Check back later.</p>
+        {% endif %}
+    </div>
+</div>
+</body>
+</html>

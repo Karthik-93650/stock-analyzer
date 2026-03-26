@@ -1,90 +1,107 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Stock Analyzer Dashboard</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-
 <body>
 
 <div class="container">
+    <div style="text-align: right; margin-bottom: 20px;">
+        <a href="/" style="margin-right: 15px; color: #a855f7; font-weight: bold; text-decoration: none;">Home</a>
+        <a href="/history" style="margin-right: 15px; color: #a855f7; font-weight: bold; text-decoration: none;">History</a>
+        <a href="/watchlist" style="margin-right: 15px; color: #a855f7; font-weight: bold; text-decoration: none;">Watchlist</a>
+        <a href="/available_stocks" style="margin-right: 15px; color: #a855f7; font-weight: bold; text-decoration: none;">Buy Stocks</a>
+        <a href="/portfolio" style="margin-right: 15px; color: #a855f7; font-weight: bold; text-decoration: none;">Portfolio</a>
+        <a href="/logout" class="download-btn" style="padding: 8px 15px; font-size: 14px; background: transparent; border: 1px solid #a855f7; display: inline-block;">Logout</a>
+    </div>
 
-    <h1>📊 Stock Analyzer Dashboard</h1>
+    <h1>Stock Analyzer</h1>
 
-    <form method="POST" class="form-box">
+    <div class="flash-messages">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {% if category == 'error' %}
+                            <strong>Error:</strong> {{ message }}
+                        {% else %}
+                            {{ message }}
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
 
-        <input
-            type="text"
-            name="symbol"
-            value="{{ symbol }}"
-            placeholder="Enter symbols (example: AAPL,TSLA,MSFT)"
-            required
-        >
-
-        <select name="period">
-            <option value="1mo" {% if period == "1mo" %}selected{% endif %}>1 Month</option>
-            <option value="3mo" {% if period == "3mo" %}selected{% endif %}>3 Months</option>
-            <option value="6mo" {% if period == "6mo" %}selected{% endif %}>6 Months</option>
-            <option value="1y" {% if period == "1y" %}selected{% endif %}>1 Year</option>
-        </select>
-
-        <button type="submit">Analyze</button>
-
+    <h3 style="text-align:center;">Welcome {{ session.name }}</h3>
+    <form method="POST" action="{{ url_for('index') }}">
+        <div class="form-group">
+            <label for="symbol">Stock Symbols (comma separated):</label>
+            <input type="text" id="symbol" name="symbol" value="{{ symbol | default('') }}" placeholder="e.g., AAPL, MSFT, TSLA" required>
+        </div>
+        <div class="form-group">
+            <label for="period">Time Period:</label>
+            <select id="period" name="period">
+                <option value="1mo" {% if period == '1mo' %}selected{% endif %}>1 Month</option>
+                <option value="3mo" {% if period == '3mo' %}selected{% endif %}>3 Months</option>
+                <option value="6mo" {% if period == '6mo' %}selected{% endif %}>6 Months</option>
+                <option value="1y" {% if period == '1y' %}selected{% endif %}>1 Year</option>
+                <option value="2y" {% if period == '2y' %}selected{% endif %}>2 Years</option>
+                <option value="5y" {% if period == '5y' %}selected{% endif %}>5 Years</option>
+                <option value="max" {% if period == 'max' %}selected{% endif %}>Max</option>
+            </select>
+        </div>
+        <button type="submit">Analyze Stock</button>
     </form>
 
+    {% if stats %}
+    <div class="results">
+        <h2>Results for {{ symbol }} ({{ period }})</h2>
+        
+        {% if companies %}
+        <div class="companies-info">
+            {% for company in companies %}
+            <div class="company-card">
+                <h3>{{ company.name }}</h3>
+                <div class="company-details">
+                    <span class="badge">{{ company.symbol }}</span>
+                    <span><strong>Sector:</strong> {{ company.sector }}</span>
+                    <span><strong>Market Cap:</strong> {{ company.market_cap }}</span>
+                    <a href="{{ url_for('add_watchlist', symbol=company.symbol) }}" class="download-btn" style="padding: 5px 10px; font-size: 12px; margin-left: 10px;">Add to Watchlist</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        
+        <div class="stats">
+            <div class="stat-box">
+                <h3>Highest</h3>
+                <p>${{ stats.highest }}</p>
+            </div>
+            <div class="stat-box">
+                <h3>Lowest</h3>
+                <p>${{ stats.lowest }}</p>
+            </div>
+            <div class="stat-box">
+                <h3>Average</h3>
+                <p>${{ stats.average }}</p>
+            </div>
+        </div>
 
-    {% if error %}
-    <div class="error-box">
-        {{ error }}
-    </div>
-    {% endif %}
-
-
-    {% if data %}
-
-        {% if company %}
-        <div class="company-info">
-            <h2>{{ company }}</h2>
-            <p><strong>Sector:</strong> {{ sector }}</p>
-            <p><strong>Market Cap:</strong> {{ marketcap }}</p>
+        {% if chart_ready %}
+        <div class="chart">
+            <img src="{{ url_for('static', filename='chart.png') }}?t={{ timestamp }}" alt="{{ symbol }} Stock Chart">
         </div>
         {% endif %}
 
-
-        <div class="results">
-
-            <h2>📈 {{ symbol }} Stock Analysis</h2>
-
-            <div class="stats">
-
-                <div class="card">
-                    <h3>Highest</h3>
-                    <p>${{ stats.highest }}</p>
-                </div>
-
-                <div class="card">
-                    <h3>Lowest</h3>
-                    <p>${{ stats.lowest }}</p>
-                </div>
-
-                <div class="card">
-                    <h3>Average</h3>
-                    <p>${{ stats.average }}</p>
-                </div>
-
-            </div>
-
-            <div class="chart-box">
-                <img src="{{ url_for('static', filename='chart.png') }}" alt="Stock chart">
-            </div>
-
-            <a href="/download" class="download-btn">Download CSV</a>
-
+        <div class="actions">
+            <a href="{{ url_for('download') }}" class="download-btn">Download CSV Data</a>
         </div>
-
+    </div>
     {% endif %}
 
 </div>

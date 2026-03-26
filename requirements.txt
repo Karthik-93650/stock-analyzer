@@ -1,6 +1,5 @@
-pandas
 flask
+pandas
 yfinance
-streamlit
-plotly
 matplotlib
+mysql-connector-python

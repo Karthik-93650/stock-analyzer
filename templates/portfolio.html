@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Portfolio</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .table-portfolio {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .table-portfolio th, .table-portfolio td {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .table-portfolio th {
+            background-color: rgba(168, 85, 247, 0.2);
+            font-weight: bold;
+        }
+        .table-portfolio tr:hover {
+            background-color: rgba(255,255,255,0.05);
+        }
+        .profit { color: #22c55e; font-weight: bold; }
+        .loss { color: #ef4444; font-weight: bold; }
+        .summary-cards {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .card {
+            background: rgba(0,0,0,0.2);
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #a855f7;
+            flex: 1;
+            text-align: center;
+        }
+        .card h4 {
+            margin: 0 0 10px 0;
+            color: #cbd5e0;
+        }
+        .card p {
+            margin: 0;
+            font-size: 24px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div style="text-align: right; margin-bottom: 20px;">
+        <a href="/" style="margin-right: 15px; color: #a855f7; font-weight: bold; text-decoration: none;">Home</a>
+        <a href="/history" style="margin-right: 15px; color: #a855f7; font-weight: bold; text-decoration: none;">History</a>
+        <a href="/watchlist" style="margin-right: 15px; color: #a855f7; font-weight: bold; text-decoration: none;">Watchlist</a>
+        <a href="/available_stocks" style="margin-right: 15px; color: #a855f7; font-weight: bold; text-decoration: none;">Buy Stocks</a>
+        <a href="/portfolio" style="margin-right: 15px; color: #a855f7; font-weight: bold; text-decoration: none;">Portfolio</a>
+        <a href="/logout" class="download-btn" style="padding: 8px 15px; font-size: 14px; background: transparent; border: 1px solid #a855f7; display: inline-block;">Logout</a>
+    </div>
+
+    <h3>Welcome {{ session.name }}</h3>
+    <h1>My Portfolio</h1>
+    
+    <div class="flash-messages">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <div class="summary-cards">
+        <div class="card">
+            <h4>Total Investment</h4>
+            <p>${{ total_investment }}</p>
+        </div>
+        <div class="card">
+            <h4>Current Value</h4>
+            <p>${{ current_value }}</p>
+        </div>
+        <div class="card">
+            <h4>Overall Return</h4>
+            {% set diff = current_value - total_investment %}
+            {% if diff >= 0 %}
+                <p class="profit">+${{ diff|round(2) }}</p>
+            {% else %}
+                <p class="loss">-${{ (diff * -1)|round(2) }}</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <h2>Holdings</h2>
+    <div class="results">
+        {% if holdings %}
+            <table class="table-portfolio">
+                <thead>
+                    <tr>
+                        <th>Symbol</th>
+                        <th>Qty</th>
+                        <th>Avg Buy Price</th>
+                        <th>Live Price</th>
+                        <th>Invested</th>
+                        <th>Current Value</th>
+                        <th>P/L</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for h in holdings %}
+                    <tr>
+                        <td style="font-weight: bold; color: #a855f7;">{{ h.symbol }}</td>
+                        <td>{{ h.quantity }}</td>
+                        <td>${{ h.buy_price }}</td>
+                        <td>${{ h.current_price }}</td>
+                        <td>${{ h.investment|round(2) }}</td>
+                        <td>${{ h.current_value|round(2) }}</td>
+                        {% if h.profit_loss != 'N/A' %}
+                            <td class="{{ 'profit' if h.profit_loss >= 0 else 'loss' }}">
+                                {{ '+' if h.profit_loss >= 0 else '' }}${{ h.profit_loss }}
+                            </td>
+                        {% else %}
+                            <td>N/A</td>
+                        {% endif %}
+                        <td>{{ h.buy_date.strftime('%Y-%m-%d') }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p style="padding: 15px; text-align: center; color: #9ca3af;">Your portfolio is empty. <a href="/available_stocks" style="color: #a855f7;">Buy some stocks!</a></p>
+        {% endif %}
+    </div>
+</div>
+</body>
+</html>

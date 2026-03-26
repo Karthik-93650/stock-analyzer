@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search History</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<div class="container">
+    <div style="text-align: right; margin-bottom: 20px;">
+        <a href="/" style="margin-right: 15px; color: #a855f7; font-weight: bold; text-decoration: none;">Home</a>
+        <a href="/history" style="margin-right: 15px; color: #a855f7; font-weight: bold; text-decoration: none;">History</a>
+        <a href="/watchlist" style="margin-right: 15px; color: #a855f7; font-weight: bold; text-decoration: none;">Watchlist</a>
+        <a href="/available_stocks" style="margin-right: 15px; color: #a855f7; font-weight: bold; text-decoration: none;">Buy Stocks</a>
+        <a href="/portfolio" style="margin-right: 15px; color: #a855f7; font-weight: bold; text-decoration: none;">Portfolio</a>
+        <a href="/logout" class="download-btn" style="padding: 8px 15px; font-size: 14px; background: transparent; border: 1px solid #a855f7; display: inline-block;">Logout</a>
+    </div>
+
+    <h3>Welcome {{ session.name }}</h3>
+    <h1>History</h1>
+
+    <div class="results">
+        <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+            <thead>
+                <tr style="text-align: left; background: rgba(168, 85, 247, 0.2);">
+                    <th style="padding: 10px;">Symbol</th>
+                    <th style="padding: 10px;">Period</th>
+                    <th style="padding: 10px;">Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in data %}
+                <tr style="border-bottom: 1px solid #444;">
+                    <td style="padding: 10px; font-weight: bold; color: #a855f7;">{{ row[0] }}</td>
+                    <td style="padding: 10px;">{{ row[1] }}</td>
+                    <td style="padding: 10px;">{{ row[2] }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="3" style="padding: 10px; text-align: center;">No history found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

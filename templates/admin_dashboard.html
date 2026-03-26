@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .table-admin {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .table-admin th, .table-admin td {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .table-admin th {
+            background-color: rgba(168, 85, 247, 0.2);
+            font-weight: bold;
+        }
+        .table-admin tr:hover {
+            background-color: rgba(255,255,255,0.05);
+        }
+        .remove-btn {
+            color: #ef4444; 
+            text-decoration: none; 
+            font-weight: bold;
+            padding: 5px 10px;
+            border: 1px solid #ef4444;
+            border-radius: 4px;
+        }
+        .remove-btn:hover {
+            background: #ef4444;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div style="text-align: right; margin-bottom: 20px;">
+        <span style="margin-right: 15px; color: #a855f7; font-weight: bold;">Admin Mode</span>
+        <a href="/logout" class="download-btn" style="padding: 8px 15px; font-size: 14px; background: transparent; border: 1px solid #a855f7; display: inline-block;">Logout</a>
+    </div>
+
+    <h3>Welcome {{ session.name }} (Admin)</h3>
+    <h1>Admin Stock Dashboard</h1>
+    
+    <div class="flash-messages">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <div style="background: rgba(0,0,0,0.2); padding: 20px; border-radius: 8px; margin-bottom: 30px; border-left: 4px solid #a855f7;">
+        <h2>Add Live Stock</h2>
+        <form method="POST" action="/admin/add_stock" style="margin-top: 15px; display: flex; gap: 10px;">
+            <input type="text" name="symbol" required placeholder="Enter Stock Symbol (e.g. AAPL)" style="flex: 1; min-width: 250px;">
+            <button type="submit" style="white-space: nowrap;">Add Stock</button>
+        </form>
+    </div>
+
+    <h2>Available Stocks</h2>
+    <div class="results">
+        {% if stocks %}
+            <table class="table-admin">
+                <thead>
+                    <tr>
+                        <th>Symbol</th>
+                        <th>Name</th>
+                        <th>Live Price</th>
+                        <th>Added At</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for stock in stocks %}
+                    <tr>
+                        <td style="font-weight: bold; color: #a855f7;">{{ stock.symbol }}</td>
+                        <td>{{ stock.name }}</td>
+                        <td>${{ stock.current_price }}</td>
+                        <td>{{ stock.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                        <td><a href="/admin/delete_stock/{{ stock.symbol }}" class="remove-btn">Remove</a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p style="padding: 15px; text-align: center; color: #9ca3af;">No stocks added yet. Use the form above to add real-time stocks.</p>
+        {% endif %}
+    </div>
+</div>
+</body>
+</html>

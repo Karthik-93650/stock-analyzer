@@ -1,0 +1,41 @@
+CREATE DATABASE IF NOT EXISTS stock;
+USE stock;
+
+CREATE TABLE IF NOT EXISTS users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100),
+    email VARCHAR(100),
+    password VARCHAR(255),
+    role VARCHAR(20) DEFAULT 'user'
+);
+
+CREATE TABLE IF NOT EXISTS history (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_email VARCHAR(100),
+    symbol VARCHAR(100),
+    period VARCHAR(20),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS watchlist (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_email VARCHAR(100),
+    symbol VARCHAR(50)
+);
+
+CREATE TABLE IF NOT EXISTS available_stocks (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    symbol VARCHAR(50) UNIQUE,
+    name VARCHAR(255),
+    added_by VARCHAR(100),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS portfolio (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_email VARCHAR(100),
+    symbol VARCHAR(50),
+    quantity INT DEFAULT 1,
+    buy_price DECIMAL(15, 2),
+    buy_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

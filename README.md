@@ -10,18 +10,15 @@ This project was built as part of a **Python Internship Project Phase** and demo
 
 # 🚀 Features
 
-* Analyze stock prices using real market data
-* Select different time periods (1 month, 3 months, 6 months, etc.)
-* Display important statistics:
-
-  * Highest price
-  * Lowest price
-  * Average closing price
-* Visualize stock trends using charts
-* Moving Average (20-day MA) visualization
-* Download analyzed stock data as CSV
-* Error handling for invalid symbols
-* Clean and responsive dashboard UI
+- User authentication (Login / Signup)
+- Analyze real-time stock market data
+- Multi-stock comparison
+- Time period selection
+- Stock price + volume charts
+- Company information (name, sector, market cap)
+- Search history tracking
+- Watchlist management
+- CSV data export
 
 ---
 
